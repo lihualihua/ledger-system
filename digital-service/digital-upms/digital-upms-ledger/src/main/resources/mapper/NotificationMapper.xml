@@ -1,0 +1,61 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digital.ledger.mapper.NotificationMapper">
+
+    <sql id="notificationQuerySql">
+        t1.id AS id,
+        t1.user_id as userId,
+        t1.title as title,
+        t1.content as content,
+        t1.type as type,
+        t1.event as event,
+        t2.status as status,
+        t1.create_by as createBy,
+        t1.create_time as createTime,
+        t1.update_by as updateBy,
+        t1.update_time as updateTime
+    </sql>
+
+    <sql id="notificationConditionSql">
+        <if test="notification.title != null and notification.title != ''">
+            AND t1.title like concat('%',#{notification.title, jdbcType=VARCHAR},'%')
+        </if>
+        <if test="notification.type != null and notification.type != ''">
+            AND t1.type = #{notification.type, jdbcType=VARCHAR}
+        </if>
+        <if test="notification.event != null and notification.event != ''">
+            AND t1.event = #{notification.type, jdbcType=VARCHAR}
+        </if>
+        <if test="notification.status != null">
+            AND t2.status = #{notification.status, jdbcType=INTEGER}
+        </if>
+    </sql>
+
+    <select id="findMyNotification" resultType="com.digital.model.ledger.entity.NotificationEntity">
+        SELECT
+            <include refid="notificationQuerySql"/>
+        FROM
+            sys_notifications t1,
+            sys_user_notifications t2
+        <where>
+            and t1.id = t2.notification_id
+            and t2.user_id = #{userId, jdbcType=BIGINT}
+            <include refid="notificationConditionSql"/>
+        </where>
+        order by t1.create_time desc
+    </select>
+
+    <select id="findNotificationList" resultType="com.digital.model.ledger.entity.NotificationEntity">
+        SELECT
+        <include refid="notificationQuerySql"/>
+        FROM
+        sys_notifications t1,
+        sys_user_notifications t2
+        <where>
+            and t1.id = t2.notification_id
+            and t2.user_id = #{userId, jdbcType=BIGINT}
+            <include refid="notificationConditionSql"/>
+        </where>
+        order by t1.create_time desc
+    </select>
+
+</mapper>

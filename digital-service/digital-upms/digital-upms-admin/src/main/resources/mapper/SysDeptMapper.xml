@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the digital.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digital.admin.mapper.SysDeptMapper">
+
+    <select id="findSysDeptByUserId" resultType="com.digital.model.admin.entity.SysDept">
+        SELECT
+        t1.dept_id,
+        t1.NAME,
+        t1.sort_order,
+        t1.create_by,
+        t1.update_by,
+        t1.create_time,
+        t1.update_time,
+        t1.del_flag
+        FROM
+        sys_dept t1,
+        sys_user_dept t2
+        WHERE
+        t1.dept_id = t2.dept_id
+        AND t2.user_id = #{userId, jdbcType=BIGINT}
+    </select>
+
+    <select id="listSysDept" resultType="com.digital.model.admin.entity.SysDept">
+        SELECT
+        t1.dept_id,
+        t1.name,
+        t1.sort_order,
+        t1.create_by,
+        t1.update_by,
+        t1.create_time AS createTime,
+        t1.update_time AS updateTime,
+        t1.del_flag
+        FROM
+        sys_dept t1
+        JOIN sys_user_dept t2 ON t1.dept_id = t2.dept_id
+        where t1.del_flag = 0
+        <include refid="deptSql"/>
+        GROUP BY t1.dept_id
+    </select>
+
+    <sql id="deptSql">
+        <if test="userId != 1">
+            AND t2.user_id = #{userId, jdbcType=BIGINT}
+        </if>
+    </sql>
+
+    <update id="updateUserDeptByUserId">
+        UPDATE sys_user_dept
+        SET dept_id = #{deptId}
+        WHERE
+        user_id = #{userId, jdbcType=BIGINT}
+    </update>
+</mapper>

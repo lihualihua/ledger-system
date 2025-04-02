@@ -1,0 +1,39 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digital.doc.mapper.DocHistoryMapper">
+    <sql id="fileHistoryColumnSql">
+        t1.id,
+        t1.user_id as userId,
+        t1.content,
+        t1.create_by as createBy
+    </sql>
+
+    <sql id ="findContentSql">
+        <if test="fileEntity.content != null and fileEntity.content != ''">
+            AND t1.content like concat('%',#{fileEntity.content, jdbcType=VARCHAR},'%')
+        </if>
+    </sql>
+
+    <!-- 查询历史记录 -->
+    <select id="findHistoryList" resultType="com.digital.model.doc.entity.DocHistoryEntity">
+        select
+        <include refid="fileHistoryColumnSql"/>
+        from
+        doc_history_search_t t1
+        where 1=1
+        and t1.user_id = #{userId, jdbcType=BIGINT}
+      <include refid="findContentSql"/>
+        order by
+        t1.create_time desc
+    </select>
+
+    <!-- 添加历史记录时查询内容是否存在 -->
+    <select id="findHistoryByContentAndUserId" resultType="Int">
+        select
+        count(t1.content)
+        from
+        doc_history_search_t t1
+        where 1=1
+        and t1.user_id = #{userId, jdbcType=BIGINT}
+        <include refid="findContentSql"/>
+    </select>
+</mapper>

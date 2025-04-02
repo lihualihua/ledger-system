@@ -1,0 +1,35 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digital.doc.mapper.UserDeptShareMapper">
+
+    <select id="findShareUserList" resultType="com.digital.model.doc.entity.DocShareUserEntity">
+        SELECT
+        t3.user_id,
+        t3.username,
+        t3.display_name
+        FROM
+        doc_share_t t1,
+        doc_share_user_dept_t t2,
+        sys_user t3
+        <where>
+            t1.id = t2.share_id
+            AND t2.share_user_id = t3.user_id
+            AND t1.id = #{shareEntity.id, jdbcType=BIGINT}
+        </where>
+    </select>
+
+    <select id="findShareDeptList" resultType="com.digital.model.doc.entity.DocShareDeptEntity">
+        SELECT
+        t3.dept_id,
+        t3.name
+        FROM
+        doc_share_t t1,
+        doc_share_user_dept_t t2,
+        sys_dept t3
+        <where>
+            t1.id = t2.share_id
+            AND t2.share_dept_id = t3.dept_id
+            AND t1.id = #{shareEntity.id, jdbcType=BIGINT}
+        </where>
+    </select>
+
+</mapper>

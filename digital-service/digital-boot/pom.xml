@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.digital</groupId>
+        <artifactId>digital</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>digital-boot</artifactId>
+    <packaging>war</packaging>
+
+    <description>digital 单体版本启动</description>
+
+    <dependencies>
+        <!--必备：认证中心模块-->
+        <dependency>
+            <groupId>com.digital</groupId>
+            <artifactId>digital-auth</artifactId>
+            <version>${revision}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>spring-boot-starter-undertow</artifactId>
+                    <groupId>org.springframework.boot</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!--必备：用户管理模块-->
+        <dependency>
+            <groupId>com.digital</groupId>
+            <artifactId>digital-upms-biz</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <!--可选：代码生成模块-->
+        <!--<dependency>
+            <groupId>com.digital</groupId>
+            <artifactId>digital-codegen</artifactId>
+            <version>${revision}</version>
+        </dependency>-->
+        <!--可选：定时任务模块-->
+        <!--<dependency>
+            <groupId>com.digital</groupId>
+            <artifactId>digital-quartz</artifactId>
+            <version>${revision}</version>
+        </dependency>-->
+        <!--安全模块-->
+        <dependency>
+            <groupId>com.digital</groupId>
+            <artifactId>digital-common-security</artifactId>
+        </dependency>
+        <!--接口文档-->
+        <dependency>
+            <groupId>com.digital</groupId>
+            <artifactId>digital-common-swagger</artifactId>
+        </dependency>
+        <!-- 接口文档  -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.springboot</groupId>
+            <artifactId>knife4j-boot-openapi3-ui</artifactId>
+            <version>${knife4j.version}</version>
+        </dependency>
+        <!--<dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>-->
+
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid-spring-boot-starter</artifactId>
+            <version>${druid.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>admin</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.digital.boot.DigitalTomcatBootApplication</mainClass>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <!-- 环境标识，需要与配置文件的名称相对应 -->
+                <profiles.active>dev</profiles.active>
+            </properties>
+            <activation>
+                <!-- 默认环境 -->
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>sit</id>
+            <properties>
+                <!-- 环境标识，需要与配置文件的名称相对应 -->
+                <profiles.active>sit</profiles.active>
+            </properties>
+        </profile>
+        <profile>
+            <id>pro</id>
+            <properties>
+                <!-- 环境标识，需要与配置文件的名称相对应 -->
+                <profiles.active>pro</profiles.active>
+            </properties>
+        </profile>
+    </profiles>
+</project>

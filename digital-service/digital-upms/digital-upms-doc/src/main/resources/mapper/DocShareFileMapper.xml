@@ -1,0 +1,57 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digital.doc.mapper.DocShareFileMapper">
+
+
+    <sql id="fileQuerySql">
+        t1.file_id as fileId,
+        t1.file_name as fileName,
+        t1.file_type as fileType,
+        t1.file_size as fileSize,
+        t1.file_size_str as fileSizeStr,
+        t1.file_path as filePath,
+        t1.create_by,
+        t1.create_time,
+        t1.update_by,
+        t1.update_time,
+        t1.del_flag as delFlag,
+        t1.folder_flag as folderFlag,
+        t1.ownership as ownership,
+        t1.parent_id as parentId,
+        t1.icon as icon
+    </sql>
+
+    <select id="findFilesByMd5Value" resultType="com.digital.model.doc.entity.DocFileEntity">
+        select
+        <include refid="fileQuerySql"/>
+        from doc_file_t t1, doc_share_file_t t2, doc_share_t t3
+        <where>
+            and t1.file_id = t2.file_id
+            and t1.del_flag = 1
+            and t2.share_id = t3.id
+            <if test="shareEntity.userId != null and shareEntity.userId != ''">
+                AND t3.user_id = #{shareEntity.userId, jdbcType=VARCHAR}
+            </if>
+            and t3.md5_value = #{shareEntity.md5Value, jdbcType=VARCHAR}
+            and (t3.valid_date <![CDATA[ >= ]]> CURDATE() or t3.valid_flag = 1)
+            order by
+            t1.folder_flag desc,
+            t1.update_time desc
+        </where>
+    </select>
+
+    <select id="findShareUser" resultType="com.digital.model.doc.entity.DocShareUserEntity">
+        SELECT
+            t3.user_id,
+            t3.username,
+            t3.display_name
+        FROM
+            doc_share_t t1,
+            doc_share_user_dept_t t2,
+            sys_user t3
+        <where>
+            t1.id = t2.share_id
+            AND t2.share_user_id = t3.user_id
+            AND t1.id = #{shareId, jdbcType=BIGINT}
+        </where>
+    </select>
+</mapper>

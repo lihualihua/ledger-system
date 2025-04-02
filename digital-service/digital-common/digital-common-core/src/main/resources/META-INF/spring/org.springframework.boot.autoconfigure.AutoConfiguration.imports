@@ -1,0 +1,6 @@
+com.digital.common.core.config.TaskExecutorConfiguration
+com.digital.common.core.config.JacksonConfiguration
+com.digital.common.core.config.RedisTemplateConfiguration
+com.digital.common.core.config.RestTemplateConfiguration
+com.digital.common.core.util.SpringContextHolder
+com.digital.common.core.config.WebMvcConfiguration

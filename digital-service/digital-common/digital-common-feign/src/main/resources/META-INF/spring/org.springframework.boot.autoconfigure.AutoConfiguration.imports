@@ -1,0 +1,4 @@
+com.digital.common.feign.PigFeignAutoConfiguration
+com.digital.common.feign.PigFeignRetryAutoConfiguration
+com.digital.common.feign.sentinel.SentinelAutoConfiguration
+com.digital.common.feign.sentinel.handle.GlobalBizExceptionHandler

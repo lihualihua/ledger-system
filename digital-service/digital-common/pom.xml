@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.digital</groupId>
+        <artifactId>digital</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>digital-common</artifactId>
+    <packaging>pom</packaging>
+
+    <description>digital 公共聚合模块</description>
+
+    <modules>
+        <module>digital-common-core</module>
+        <!--<module>digital-common-datasource</module>-->
+        <!--<module>digital-common-job</module>-->
+        <module>digital-common-log</module>
+        <module>digital-common-mybatis</module>
+        <!--<module>digital-common-oss</module>
+        <module>digital-common-seata</module>-->
+        <module>digital-common-security</module>
+        <module>digital-common-feign</module>
+        <module>digital-common-swagger</module>
+        <module>digital-common-xss</module>
+    </modules>
+</project>

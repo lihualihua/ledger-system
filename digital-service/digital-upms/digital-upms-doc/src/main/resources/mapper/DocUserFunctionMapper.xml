@@ -1,0 +1,30 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digital.doc.mapper.DocUserFunctionMapper">
+
+    <sql id="functionQuerySql">
+        t1.id as id,
+        t1.name as name,
+        t1.icon as icon,
+        t1.path as path,
+        t1.order as `order`,
+        t1.status as `status`,
+        t1.create_by,
+        t1.create_time,
+        t1.update_by,
+        t1.update_time
+    </sql>
+
+    <select id="findMyFunction" resultType="com.digital.model.doc.entity.DocFunctionEntity">
+        select
+            <include refid="functionQuerySql" />
+        from
+            doc_function_t t1, doc_user_function_t t2
+        <where>
+            and t1.id = t2.function_id
+            and t1.status = 1
+            and t2.user_id = #{userId, jdbcType=BIGINT}
+        </where>
+        order by t1.order asc, t1.update_time desc
+    </select>
+
+</mapper>

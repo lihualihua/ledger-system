@@ -1,0 +1,64 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digital.ledger.mapper.LedgerRowMapper">
+    <select id="findRowList" resultType="com.digital.model.ledger.entity.LedgerRowEntity">
+    select
+    id,
+    temp_id,
+    type,
+    column_id AS columnId,
+    row_id AS rowId,
+    content,
+    is_view AS isView,
+    is_edit AS isEdit
+    from
+    led_row_t
+    <where>
+        1=1
+        <if test="tempId != null and tempId != ''">
+            and temp_id = #{tempId, jdbcType=VARCHAR}
+        </if>
+        <if test="columnId != null and columnId != ''">
+            and column_id = #{columnId, jdbcType=BIGINT}
+        </if>
+        <if test="assigner != null and assigner != ''">
+            and assigner = #{assigner, jdbcType=VARCHAR}
+        </if>
+    </where>
+        order by row_id
+    </select>
+
+    <select id="findRows" resultType="com.digital.model.ledger.entity.LedgerRowEntity">
+        SELECT
+            t3.id as id,
+            t3.temp_id as tempId,
+            t3.type as type,
+            t3.column_id as columnId,
+            t3.row_id as rowId,
+            ifNull(t3.content, '') as content,
+            t3.is_view as isView,
+            t3.is_edit as isEdit,
+            t3.assigner as assigner,
+            t3.create_by_id as createById,
+            t3.create_by as createBy,
+            t3.create_time as createTime,
+            t3.update_by as updateBy,
+            t3.update_time as updateTime
+        FROM
+            led_ledger_t t1,
+            led_column_t t2,
+            led_row_t t3
+        <where>
+            and t1.temp_id = t2.temp_id
+            and t2.id = t3.column_id
+            <if test="isFixed != null">
+                and t2.is_fixed = #{isFixed, jdbcType=INTEGER}
+            </if>
+            <if test="assigner != null and assigner != '' ">
+                and t3.assigner = #{assigner, jdbcType=VARCHAR}
+            </if>
+            and del_flag = 1
+            and t1.temp_id = #{tempId, jdbcType=VARCHAR}
+        </where>
+        order by t2.sort
+    </select>
+</mapper>

@@ -1,0 +1,56 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.digital</groupId>
+        <artifactId>digital-upms</artifactId>
+        <version>${revision}</version>
+    </parent>
+    <artifactId>digital-upms-admin</artifactId>
+    <packaging>jar</packaging>
+
+    <description>digital 数字化通用用户权限管理模块</description>
+
+
+    <dependencies>
+        <!--upms api、model 模块-->
+        <dependency>
+            <groupId>com.digital</groupId>
+            <artifactId>digital-upms-model</artifactId>
+        </dependency>
+        <!--feign 调用-->
+        <dependency>
+            <groupId>com.digital</groupId>
+            <artifactId>digital-common-feign</artifactId>
+        </dependency>
+        <!--安全模块-->
+        <dependency>
+            <groupId>com.digital</groupId>
+            <artifactId>digital-common-security</artifactId>
+        </dependency>
+        <!--日志处理-->
+        <dependency>
+            <groupId>com.digital</groupId>
+            <artifactId>digital-common-log</artifactId>
+        </dependency>
+        <!--接口文档-->
+        <dependency>
+            <groupId>com.digital</groupId>
+            <artifactId>digital-common-swagger</artifactId>
+        </dependency>
+        <!-- orm 模块-->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+        </dependency>
+        <!--xss 过滤-->
+        <dependency>
+            <groupId>com.digital</groupId>
+            <artifactId>digital-common-xss</artifactId>
+        </dependency>
+    </dependencies>
+</project>

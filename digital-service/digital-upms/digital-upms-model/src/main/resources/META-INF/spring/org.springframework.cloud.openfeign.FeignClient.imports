@@ -1,0 +1,6 @@
+com.digital.model.admin.feign.RemoteClientDetailsService
+com.digital.model.admin.feign.RemoteDictService
+com.digital.model.admin.feign.RemoteLogService
+com.digital.model.admin.feign.RemoteParamService
+com.digital.model.admin.feign.RemoteTokenService
+com.digital.model.admin.feign.RemoteUserService

@@ -1,0 +1,50 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digital.ledger.mapper.LedgerColumnMapper">
+
+    <select id="findColumnList" resultType="com.digital.model.ledger.entity.LedgerColumnEntity">
+        SELECT
+            *
+        FROM
+        (
+            SELECT
+                t1.id AS id,
+                t1.temp_id AS tempId,
+                t1.NAME AS NAME,
+                t1.sort AS sort,
+                t1.is_fixed AS isFixed,
+                t1.create_by_id AS createById,
+                t1.create_by AS createBy,
+                t1.create_time AS createTime,
+                t1.update_by AS updateBy,
+                t1.update_time AS updateTime
+            FROM
+                led_column_t t1
+            <where>
+                AND t1.is_fixed = 1
+                AND t1.temp_id = #{tempId, jdbcType=VARCHAR}
+            </where>
+             UNION
+            SELECT
+                t1.id AS id,
+                t1.temp_id AS tempId,
+                t1.NAME AS NAME,
+                t1.sort AS sort,
+                t1.is_fixed AS isFixed,
+                t1.create_by_id AS createById,
+                t1.create_by AS createBy,
+                t1.create_time AS createTime,
+                t1.update_by AS updateBy,
+                t1.update_time AS updateTime
+            FROM
+                led_column_t t1,
+                led_row_t t2
+            <where>
+                AND t1.id = t2.column_id
+                AND t2.assigner = #{assigner, jdbcType=VARCHAR}
+                AND t1.temp_id = #{tempId, jdbcType=VARCHAR}
+            </where>
+            ) t3
+        ORDER BY t3.sort
+    </select>
+
+</mapper>

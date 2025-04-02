@@ -1,0 +1,356 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digital.doc.mapper.DocFileMapper">
+
+    <update id="addCollectCount">
+        update doc_file_t set collect_count = collect_count + 1 where file_id = #{fileId, jdbcType=BIGINT}
+    </update>
+
+    <update id="subtractCollectCount">
+        update doc_file_t set collect_count = collect_count - 1 where file_id = #{fileId, jdbcType=BIGINT}
+    </update>
+
+    <update id="addDownloadCount">
+        update doc_file_t set download_count = download_count + 1 where file_id = #{fileId, jdbcType=BIGINT}
+    </update>
+
+    <update id="batchAddDownloadCount">
+        update doc_file_t set download_count = download_count + 1 where file_id in
+        <foreach collection="list" index="index" item="item" open="(" close=")"  separator=",">
+            #{item}
+        </foreach>
+    </update>
+
+    <update id="addPreviewCount">
+        update doc_file_t set preview_count = preview_count + 1 where file_id = #{fileId, jdbcType=BIGINT}
+    </update>
+
+    <sql id="fileQuerySql">
+        t1.file_id as fileId,
+        t1.file_name as fileName,
+        t1.file_type as fileType,
+        t1.file_size as fileSize,
+        t1.file_size_str as fileSizeStr,
+        t1.file_path as filePath,
+        t1.create_by,
+        t1.create_time,
+        t1.update_by,
+        t1.update_time,
+        t1.del_flag as delFlag,
+        t1.folder_flag as folderFlag,
+        t1.ownership as ownership,
+        t1.parent_id as parentId,
+        t1.icon as icon
+    </sql>
+
+    <sql id="fileColumnQuerySql">
+        t1.file_id,
+        t1.file_name,
+        t1.file_type,
+        t1.file_size,
+        t1.file_size_str,
+        t1.file_path,
+        t1.create_by,
+        t1.create_time,
+        t1.update_by,
+        t1.update_time,
+        t1.del_flag,
+        t1.folder_flag,
+        t1.ownership,
+        t1.parent_id,
+        t1.download_count,
+        t1.collect_count,
+        t1.preview_count,
+        t1.icon as icon
+    </sql>
+
+    <sql id="fileNameLikeConditionSql">
+        <if test="fileEntity.fileName != null and fileEntity.fileName != ''">
+            AND t1.file_name  like concat('%',#{fileEntity.fileName, jdbcType=VARCHAR},'%')
+        </if>
+    </sql>
+
+    <sql id="categoryConditionSql">
+        <if test="fileEntity.category != null and fileEntity.category != ''">
+            <choose>
+                <when test="fileEntity.fileType != null and fileEntity.fileType.equals('other')">
+                    and t1.file_type not in
+                    <foreach collection="fileEntity.fileTypeList" index="index" item="item" open="(" close=")"  separator=",">
+                        #{item}
+                    </foreach>
+                </when>
+                <when test="fileEntity.category.equals('document') || fileEntity.category.equals('picture')">
+                    and t1.file_type in
+                    <foreach collection="fileEntity.fileTypeList" index="index" item="item" open="(" close=")"  separator=",">
+                        #{item}
+                    </foreach>
+                </when>
+                <when test="fileEntity.category.equals('folder')">
+                    and t1.folder_flag = #{fileEntity.folderFlag, jdbcType=INTEGER}
+                </when>
+                <otherwise/>
+            </choose>
+        </if>
+    </sql>
+
+    <sql id="fileConditionSql">
+        and t1.file_id = t2.file_id
+        <if test="fileEntity.delFlag != null">
+            and t1.del_flag = #{fileEntity.delFlag, jdbcType=INTEGER}
+        </if>
+    </sql>
+
+    <sql id="parentIdConditionSql">
+        <if test="fileEntity.parentId != null and fileEntity.parentId != ''">
+            and t1.parent_id = #{fileEntity.parentId, jdbcType=BIGINT}
+        </if>
+        <if test="fileEntity.parentId == 0">
+            and t1.parent_id = 0
+        </if>
+    </sql>
+
+    <sql id="delFlagConditionSql">
+        <if test="fileEntity.delFlag != null">
+            and t1.del_flag = #{fileEntity.delFlag, jdbcType=INTEGER}
+        </if>
+    </sql>
+
+    <sql id="folderFlagConditionSql">
+        <if test="fileEntity.folderFlag != null">
+            AND t1.folder_flag = #{fileEntity.folderFlag, jdbcType=INTEGER}
+        </if>
+    </sql>
+
+    <sql id="userConditionSql">
+        and t2.user_id = #{userId, jdbcType=BIGINT}
+    </sql>
+
+    <sql id="deptConditionSql">
+        and t2.dept_id = #{deptId, jdbcType=BIGINT}
+    </sql>
+
+    <sql id="ownershipConditionSql">
+        <if test="fileEntity.ownership != null and fileEntity.ownership != ''">
+            AND t1.ownership = #{fileEntity.ownership, jdbcType=INTEGER}
+        </if>
+    </sql>
+
+    <sql id="innerJoinUserDeptSql">
+        <if test="userId != null and userId != ''">
+            inner join doc_user_file_t t3 on t1.file_id = t3.file_id and t3.user_id = #{userId, jdbcType=BIGINT}
+        </if>
+        <if test="deptId != null and deptId != ''">
+            inner join doc_dept_file_t t4 on t1.file_id = t4.file_id and t4.dept_id = #{deptId, jdbcType=BIGINT}
+        </if>
+    </sql>
+
+    <select id="findChildFiles" resultType="com.digital.model.doc.entity.DocFileEntity">
+        select
+        <include refid="fileQuerySql"/>
+        , ifNull(t2.STATUS, 0 ) AS collectFlag
+        from
+            doc_file_t t1
+            left join doc_collect_t t2 on t1.file_id = t2.file_id
+            <include refid="innerJoinUserDeptSql"/>
+        <where>
+            <include refid="delFlagConditionSql"/>
+            <include refid="parentIdConditionSql"/>
+            <include refid="ownershipConditionSql"/>
+            <include refid="fileNameLikeConditionSql"/>
+            <include refid="categoryConditionSql"/>
+        </where>
+        order by
+        <if test="fileEntity.delFlag == 1">
+            t1.folder_flag desc,
+        </if>
+        t1.create_time desc,
+        t1.file_name
+    </select>
+
+    <select id="findAllChildFiles" resultType="com.digital.model.doc.entity.DocFileEntity">
+        WITH RECURSIVE doc_file_tree AS (
+        SELECT
+        <include refid="fileColumnQuerySql"/>
+        FROM doc_file_t t1
+        <where>
+            and t1.parent_id = #{fileEntity.parentId, jdbcType=BIGINT}
+        </where>
+        UNION ALL
+        SELECT
+            <include refid="fileColumnQuerySql"/>
+        FROM
+            doc_file_t t1
+            INNER JOIN doc_file_tree t2 ON t1.parent_id = t2.file_id
+        )
+        SELECT
+            <include refid="fileQuerySql"/>
+            , ifNull(t2.status, 0) as collectFlag
+        FROM
+            doc_file_tree t1
+            left join doc_collect_t t2 on t1.file_id = t2.file_id
+            <include refid="innerJoinUserDeptSql"/>
+        <where>
+            <include refid="ownershipConditionSql"/>
+            <include refid="delFlagConditionSql"/>
+            <include refid="fileNameLikeConditionSql" />
+            <include refid="categoryConditionSql" />
+        </where>
+        order by
+        t1.folder_flag desc,
+        t1.create_time desc,
+        t1.file_name
+    </select>
+
+    <select id="findCollectFiles" resultType="com.digital.model.doc.entity.DocFileEntity">
+        select
+            <include refid="fileQuerySql"/>
+            ,  ifNull(t2.status, 0) as collectFlag
+        from
+            doc_file_t t1,
+            doc_collect_t t2
+        <where>
+            <include refid="fileConditionSql"/>
+            <include refid="userConditionSql"/>
+            <include refid="fileNameLikeConditionSql"/>
+            <include refid="categoryConditionSql"/>
+        </where>
+        order by
+            t2.create_time desc
+    </select>
+
+    <select id="findFileById" resultType="com.digital.model.doc.entity.DocFileEntity">
+        select
+        <include refid="fileQuerySql"/>
+        from doc_file_t t1
+            <if test="userId != null and userId != ''">
+                inner join doc_user_file_t t2 on t1.file_id = t2.file_id and t2.user_id = #{userId, jdbcType=BIGINT}
+            </if>
+        <where>
+            <include refid="delFlagConditionSql"/>
+          and t1.file_id = #{fileEntity.fileId, jdbcType=BIGINT}
+        </where>
+        union all
+        select
+        <include refid="fileQuerySql"/>
+        from doc_file_t t1
+            <if test="deptId != null and deptId != ''">
+                inner join doc_dept_file_t t2 on t1.file_id = t2.file_id and t2.dept_id = #{deptId, jdbcType=BIGINT}
+            </if>
+        <where>
+            <include refid="delFlagConditionSql"/>
+          and t1.file_id = #{fileEntity.fileId, jdbcType=BIGINT}
+        </where>
+    </select>
+
+    <select id="findFileByParentIds" resultType="com.digital.model.doc.entity.DocFileEntity">
+        select
+        <include refid="fileQuerySql"/>
+        from doc_file_t t1, doc_user_file_t t2
+        where t1.file_id = t2.file_id
+        <if test="!containDel">
+            and t1.del_flag = 1
+        </if>
+        and t1.parent_id in
+        <foreach collection="fileIds" index="index" item="item" open="(" close=")"  separator=",">
+            #{item}
+        </foreach>
+        and t2.user_id = #{userId, jdbcType=BIGINT}
+        union all
+        select
+        <include refid="fileQuerySql"/>
+        from doc_file_t t1, doc_dept_file_t t2
+        where t1.file_id = t2.file_id
+        <if test="!containDel">
+            and t1.del_flag = 1
+        </if>
+        and t1.parent_id in
+        <foreach collection="fileIds" index="index" item="item" open="(" close=")"  separator=",">
+            #{item}
+        </foreach>
+        and t2.dept_id = #{deptId, jdbcType=BIGINT}
+        union all
+        select
+        <include refid="fileQuerySql"/>
+        from doc_file_t t1
+        where t1.ownership = 1
+        <if test="!containDel">
+            and t1.del_flag = 1
+        </if>
+        and t1.parent_id in
+        <foreach collection="fileIds" index="index" item="item" open="(" close=")"  separator=",">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="findDocFileEntityByUserId" resultType="com.digital.model.doc.entity.DocFileEntity">
+        select
+        <include refid="fileQuerySql"/>
+        from doc_file_t t1, doc_user_file_t t2
+        <where>
+            <include refid="fileConditionSql"/>
+            <include refid="parentIdConditionSql"/>
+
+            <if test="fileEntity.fileName != null and fileEntity.fileName != ''">
+                AND t1.file_name = #{fileEntity.fileName, jdbcType=VARCHAR}
+            </if>
+            <include refid="folderFlagConditionSql"/>
+            <include refid="ownershipConditionSql"/>
+            <include refid="userConditionSql"/>
+        </where>
+    </select>
+
+    <select id="findDocFileEntityByDeptId" resultType="com.digital.model.doc.entity.DocFileEntity">
+        select
+        <include refid="fileQuerySql"/>
+        from doc_file_t t1, doc_dept_file_t t2
+        <where>
+            <include refid="fileConditionSql"/>
+            <include refid="parentIdConditionSql"/>
+
+            <if test="fileEntity.fileName != null and fileEntity.fileName != ''">
+                AND t1.file_name = #{fileEntity.fileName, jdbcType=VARCHAR}
+            </if>
+            <include refid="folderFlagConditionSql"/>
+            <include refid="ownershipConditionSql"/>
+            <include refid="deptConditionSql"/>
+        </where>
+    </select>
+
+    <select id="findUserDeptFileCount" resultType="java.lang.Long">
+        SELECT
+            count( 1 )
+        FROM
+            doc_file_t t1
+            <include refid="innerJoinUserDeptSql"/>
+        <where>
+            <include refid="ownershipConditionSql"/>
+            <include refid="delFlagConditionSql"/>
+            <include refid="folderFlagConditionSql"/>
+        </where>
+    </select>
+
+    <select id="findAllParentFiles" resultType="com.digital.model.doc.entity.DocFileEntity">
+        WITH RECURSIVE file_tree AS (
+            SELECT
+                 <include refid="fileColumnQuerySql"/>
+            FROM doc_file_t t1
+            <where>
+                t1.file_id = #{fileEntity.fileId, jdbcType=BIGINT}
+            </where>
+        UNION ALL
+            SELECT
+            <include refid="fileColumnQuerySql"/>
+            FROM
+                doc_file_t t1
+            INNER JOIN
+                file_tree t2
+            ON t1.file_id = t2.parent_id
+        )
+        SELECT
+            t1.*
+        FROM
+            file_tree t1
+        where
+            t1.file_id <![CDATA[<>]]> #{fileEntity.fileId, jdbcType=BIGINT}
+    </select>
+
+</mapper>

@@ -1,0 +1,102 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digital.doc.mapper.DocFileTagMapper">
+
+    <sql id="fileQuerySql">
+        t1.file_id as fileId,
+        t1.file_name as fileName,
+        t1.file_type as fileType,
+        t1.file_size as fileSize,
+        t1.file_size_str as fileSizeStr,
+        t1.file_path as filePath,
+        t1.create_by,
+        t1.create_time,
+        t1.update_by,
+        t1.update_time,
+        t1.del_flag as delFlag,
+        t1.folder_flag as folderFlag,
+        t1.ownership as ownership,
+        t1.parent_id as parentId,
+        t1.icon as icon
+    </sql>
+
+    <select id="findFilesByTag" resultType="com.digital.model.doc.entity.DocFileEntity">
+        select
+            <include refid="fileQuerySql"/>
+        from
+            doc_file_t t1, doc_tag_t t2, doc_file_tag_t t3
+        <where>
+            and t1.file_id = t3.file_id
+            and t2.id = t3.tag_id
+            <if test="tagEntity.id != null and tagEntity.id != ''">
+                and t2.id = #{tagEntity.id, jdbcType=BIGINT}
+            </if>
+            <if test="tagEntity.name != null and tagEntity.name != ''">
+                and t2.name = #{tagEntity.name, jdbcType=VARCHAR}
+            </if>
+            <if test="fileName != null and fileName != ''">
+                AND t1.file_name  like concat('%',#{fileName, jdbcType=VARCHAR},'%')
+            </if>
+        </where>
+        order by
+        t1.folder_flag desc,
+        t1.update_time desc
+    </select>
+
+    <select id="findTagByFileId" resultType="com.digital.model.doc.entity.DocTagEntity">
+        SELECT
+            t1.id as id,
+            t1.user_id as userId,
+            t1.NAME as `name`,
+            t1.STATUS as `status`,
+            t1.desc as `desc`,
+            t1.create_by as createBy,
+            t1.create_time as createTime,
+            t1.update_by as updateBy,
+            t1.update_time as updateTime
+        FROM
+            doc_tag_t t1 , doc_file_tag_t t2
+        WHERE
+            t1.id = t2.tag_id
+            and t1.status = 1
+            and t2.file_id = #{fileId, jdbcType=BIGINT}
+            and t1.user_id = #{userId, jdbcType=BIGINT}
+    </select>
+
+    <sql id="findTagSql">
+        <if test="tagEntity.tag != null and tagEntity.tag != ''">
+            AND (
+            <foreach collection="tagEntity.tag" item="item" separator="OR">
+                name LIKE CONCAT('%', #{item}, '%')
+            </foreach>
+            )
+        </if>
+    </sql>
+
+    <select id="findPublicTags" resultType="com.digital.model.doc.response.DocTagResponse">
+        SELECT
+        id,
+        name,
+        create_time
+        FROM
+        doc_tag_t
+        WHERE
+        STATUS = 1
+        AND public_flag = 1
+        <include refid="findTagSql"/>
+        UNION
+        SELECT
+        t1.id,
+        t1.name,
+        t1.create_time
+        FROM
+        doc_tag_t t1,
+        doc_file_tag_t t2
+        WHERE
+        t1.id = t2.tag_id
+        AND t1.public_flag = 2
+        <include refid="findTagSql"/>
+        AND t2.dept_id = #{deptId, jdbcType=BIGINT}
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>

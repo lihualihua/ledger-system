@@ -1,0 +1,7 @@
+com.digital.common.security.service.PigUserDetailsServiceImpl
+com.digital.common.security.service.PigAppUserDetailsServiceImpl
+com.digital.common.security.service.PigRedisOAuth2AuthorizationService
+com.digital.common.security.service.PigRedisOAuth2AuthorizationConsentService
+com.digital.common.security.component.PigSecurityInnerAspect
+com.digital.common.security.component.PigSecurityMessageSourceConfiguration
+com.digital.common.security.service.PigRemoteRegisteredClientRepository

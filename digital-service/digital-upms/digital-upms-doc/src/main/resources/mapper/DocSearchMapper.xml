@@ -1,0 +1,295 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digital.doc.mapper.DocSearchMapper">
+    <sql id="fileSearchColumnSql">
+        t1.file_id as fileId,
+        t1.file_name as fileName,
+        t1.create_by_id,
+        t1.create_by,
+        t1.file_type as fileType,
+        t1.folder_flag as folderFlag,
+        t1.create_time as createTime,
+        t1.update_time as updateTime,
+        t1.download_count as downloadCount,
+        t1.collect_count as collectCount,
+        t1.preview_count as previewCount,
+        t1.ownership as ownership,
+        t1.file_path as filePath,
+        t1.file_size as fileSize,
+        t1.file_size_str as fileSizeStr,
+        t1.del_flag as delFlag,
+        t1.icon
+    </sql>
+
+    <!-- 基础搜索 -->
+    <sql id="baseSearchSql">
+        <if test="fileEntity.searchType.equals('base') ">
+            <if test="fileEntity.fileName != null and fileEntity.fileName != ''">
+                AND t1.file_name like concat('%',#{fileEntity.fileName, jdbcType=VARCHAR},'%')
+            </if>
+        </if>
+    </sql>
+
+    <sql id="advancedSearchSql">
+        <!-- 高级搜索 -->
+        <if test="fileEntity.searchType.equals('advanced') ">
+            <if test="fileEntity.fileName != null and fileEntity.fileName != ''">
+                AND t1.file_name like concat('%',#{fileEntity.fileName, jdbcType=VARCHAR},'%')
+            </if>
+            <!-- 文件归属，1:公共，2:用户，3：部门 -->
+            <if test="fileEntity.ownership != null and fileEntity.ownership != ''">
+                AND t1.ownership = #{fileEntity.ownership, jdbcType=INTEGER}
+            </if>
+
+            <!-- 标签AND/OR条件 -->
+            <if test="fileEntity.tagAndOr != null and fileEntity.tagAndOr != ''">
+                <choose>
+                    <when test="fileEntity.tagAndOr.equals('and') and fileEntity.tag != null and fileEntity.tag.size() != 0">
+                        AND (
+                        <foreach collection="fileEntity.tag" item="item" separator="OR">
+                           t3.name LIKE CONCAT('%', #{item}, '%')
+                        </foreach>
+                        )
+                    </when>
+                    <when test="fileEntity.tagAndOr.equals('or') and fileEntity.tag != null and fileEntity.tag.size() != 0">
+                        OR (
+                        <foreach collection="fileEntity.tag" item="item" separator="OR">
+                           t3.name LIKE CONCAT('%', #{item}, '%')
+                        </foreach>
+                        )
+                    </when>
+                    <otherwise/>
+                </choose>
+            </if>
+
+            <!-- 上传者AND/OR条件 -->
+            <if test="fileEntity.createByAndOr != null and fileEntity.createByAndOr != ''">
+                <choose>
+                    <when test="fileEntity.createByAndOr.equals('and') and fileEntity.createBy != null and fileEntity.createBy != ''">
+                        AND t1.create_by like concat('%',#{fileEntity.createBy, jdbcType=VARCHAR},'%')
+                    </when>
+                    <when test="fileEntity.createByAndOr.equals('or') and fileEntity.createBy != null and fileEntity.createBy != ''">
+                        OR t1.create_by like concat('%',#{fileEntity.createBy, jdbcType=VARCHAR},'%')
+                    </when>
+                    <otherwise/>
+                </choose>
+            </if>
+
+            <!-- 文件类型 'doc','xls','ppt','pdf'-->
+            <if test="fileEntity.fileType != null and fileEntity.fileType != ''">
+                <choose>
+                    <!-- 其他 -->
+                    <when test="fileEntity.fileType.equals('other')">
+                        AND t1.folder_flag != 1
+                        AND t1.file_type not in('doc','docx','xls','xlsx','ppt','pptx','pdf')
+                    </when>
+                    <!-- 类型搜索 -->
+                    <otherwise>
+                        AND t1.file_type like concat('%',#{fileEntity.fileType, jdbcType=VARCHAR},'%')
+                    </otherwise>
+                </choose>
+            </if>
+
+            <!-- 文件夹 -->
+            <if test="fileEntity.folderFlag == 1">
+                AND t1.folder_flag = #{fileEntity.folderFlag, jdbcType=INTEGER}
+            </if>
+
+            <!-- 时间范围 -->
+            <if test="fileEntity.startTime != null and fileEntity.startTime != ''">
+                AND DATE(t1.create_time) BETWEEN #{fileEntity.startTime, jdbcType=VARCHAR}
+                AND #{fileEntity.endTime, jdbcType=VARCHAR}
+            </if>
+
+            <!-- 更新时间 -->
+            <if test="fileEntity.updateTimeSlot != null and fileEntity.updateTimeSlot != ''">
+                <choose>
+                    <when test="fileEntity.updateTimeSlot == 1">
+                        AND t1.update_time >= NOW() - INTERVAL 1 DAY
+                    </when>
+                    <when test="fileEntity.updateTimeSlot == 7">
+                        AND t1.update_time >= NOW() - INTERVAL 1 WEEK
+                    </when>
+                    <when test="fileEntity.updateTimeSlot == 30">
+                        AND t1.update_time >= NOW() - INTERVAL 1 MONTH
+                    </when>
+                    <when test="fileEntity.updateTimeSlot == 180">
+                        AND t1.update_time >= NOW() - INTERVAL 6 MONTH
+                    </when>
+                    <when test="fileEntity.updateTimeSlot == 365">
+                        AND t1.update_time >= NOW() - INTERVAL 1 YEAR
+                    </when>
+                    <otherwise/>
+                </choose>
+            </if>
+        </if>
+    </sql>
+
+    <select id="findSearchFiles" resultType="com.digital.model.doc.entity.DocSearchEntity">
+        select
+        <include refid="fileSearchColumnSql"/>
+        from
+        doc_file_t t1
+        left join doc_file_tag_t t2 on t1.file_id = t2.file_id
+        left join doc_tag_t t3 on t2.tag_id = t3.id
+        where
+        t1.del_flag = 1
+        <include refid="baseSearchSql"/>
+        <include refid="advancedSearchSql"/>
+        group by t1.file_id
+        order by t1.create_time desc
+    </select>
+
+    <sql id="fileColumnQuerySql">
+        t1.file_id,
+        t1.file_name,
+        t1.file_type,
+        t1.file_size,
+        t1.file_size_str,
+        t1.file_path,
+        t1.create_by,
+        t1.create_time,
+        t1.update_by,
+        t1.update_time,
+        t1.del_flag,
+        t1.folder_flag,
+        t1.ownership,
+        t1.parent_id,
+        t1.download_count,
+        t1.collect_count,
+        t1.preview_count,
+        t1.icon as icon
+    </sql>
+
+    <sql id="fileQuerySql">
+        t1.file_id as fileId,
+        t1.file_name as fileName,
+        t1.file_type as fileType,
+        t1.file_size as fileSize,
+        t1.file_size_str as fileSizeStr,
+        t1.file_path as filePath,
+        t1.create_by,
+        t1.create_time,
+        t1.update_by,
+        t1.update_time,
+        t1.del_flag as delFlag,
+        t1.folder_flag as folderFlag,
+        t1.ownership as ownership,
+        t1.parent_id as parentId,
+        t1.download_count as downloadCount,
+        t1.collect_count as collectCount,
+        t1.preview_count as previewCount,
+        t1.icon as icon
+    </sql>
+
+    <sql id="innerJoinUserDeptSql">
+        <if test="userId != null and userId != ''">
+            inner join doc_user_file_t t3 on t1.file_id = t3.file_id and t3.user_id = #{userId, jdbcType=BIGINT}
+        </if>
+        <if test="deptId != null and deptId != ''">
+            inner join doc_dept_file_t t4 on t1.file_id = t4.file_id and t4.dept_id = #{deptId, jdbcType=BIGINT}
+        </if>
+    </sql>
+
+    <sql id="ownershipConditionSql">
+        <if test="fileEntity.ownership != null and fileEntity.ownership != ''">
+            AND t1.ownership = #{fileEntity.ownership, jdbcType=INTEGER}
+        </if>
+    </sql>
+
+    <sql id="delFlagConditionSql">
+        <if test="fileEntity.delFlag != null">
+            and t1.del_flag = #{fileEntity.delFlag, jdbcType=INTEGER}
+        </if>
+    </sql>
+
+    <sql id="fileNameLikeConditionSql">
+        <if test="fileEntity.fileName != null and fileEntity.fileName != ''">
+            AND t1.file_name  like concat('%',#{fileEntity.fileName, jdbcType=VARCHAR},'%')
+        </if>
+    </sql>
+
+    <sql id="categoryConditionSql">
+        <if test="fileEntity.category != null and fileEntity.category != ''">
+            <choose>
+                <when test="fileEntity.category.equals('document') || fileEntity.category.equals('picture')">
+                    and t1.file_type in
+                    <foreach collection="fileEntity.fileTypeList" index="index" item="item" open="(" close=")"  separator=",">
+                        #{item}
+                    </foreach>
+                </when>
+                <when test="fileEntity.category.equals('folder')">
+                    and t1.folder_flag = #{fileEntity.folderFlag, jdbcType=INTEGER}
+                </when>
+                <otherwise/>
+            </choose>
+        </if>
+    </sql>
+
+
+    <select id="findAllChildFiles" resultType="com.digital.model.doc.entity.DocSearchEntity">
+        WITH RECURSIVE doc_file_tree AS (
+        SELECT
+        <include refid="fileColumnQuerySql"/>
+        FROM doc_file_t t1
+        <where>
+            and t1.parent_id = #{fileEntity.parentId, jdbcType=BIGINT}
+        </where>
+        UNION ALL
+        SELECT
+        <include refid="fileColumnQuerySql"/>
+        FROM
+        doc_file_t t1
+        INNER JOIN doc_file_tree t2 ON t1.parent_id = t2.file_id
+        )
+        SELECT
+        <include refid="fileQuerySql"/>
+        , ifNull(t2.status, 0) as collectFlag
+        FROM
+        doc_file_tree t1
+        left join doc_collect_t t2 on t1.file_id = t2.file_id
+        <include refid="innerJoinUserDeptSql"/>
+        <where>
+            <include refid="ownershipConditionSql"/>
+            <include refid="delFlagConditionSql"/>
+            <include refid="fileNameLikeConditionSql" />
+            <include refid="categoryConditionSql" />
+        </where>
+        order by
+        t1.folder_flag desc,
+        t1.update_time desc,
+        t1.file_name
+    </select>
+
+
+    <sql id="parentIdConditionSql">
+        <if test="fileEntity.parentId != null and fileEntity.parentId != ''">
+            and t1.parent_id = #{fileEntity.parentId, jdbcType=BIGINT}
+        </if>
+        <if test="fileEntity.parentId == 0">
+            and t1.parent_id = 0
+        </if>
+    </sql>
+
+    <select id="findChildFiles" resultType="com.digital.model.doc.entity.DocSearchEntity">
+        select
+        <include refid="fileQuerySql"/>
+        , ifNull(t2.STATUS, 0 ) AS collectFlag
+        from
+        doc_file_t t1
+        left join doc_collect_t t2 on t1.file_id = t2.file_id
+        <include refid="innerJoinUserDeptSql"/>
+        <where>
+            <include refid="delFlagConditionSql"/>
+            <include refid="parentIdConditionSql"/>
+            <include refid="ownershipConditionSql"/>
+            <include refid="fileNameLikeConditionSql"/>
+            <include refid="categoryConditionSql"/>
+        </where>
+        order by
+        <if test="fileEntity.delFlag == 1">
+            t1.folder_flag desc,
+        </if>
+        t1.update_time desc,
+        t1.file_name
+    </select>
+</mapper>
