@@ -1,0 +1,41 @@
+{
+  "name": "file-management-system",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --mode development --open --host 0.0.0.0",
+    "dev:test": "vite --mode test",
+    "dev:pro": "vite --mode production",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@wangeditor/editor": "^5.1.23",
+    "@wangeditor/editor-for-vue": "^5.1.12",
+    "axios": "^1.7.7",
+    "crypto-js": "^4.2.0",
+    "element-plus": "^2.3.7",
+    "install": "^0.13.0",
+    "less": "^4.2.0",
+    "less-loader": "^12.2.0",
+    "mitt": "^3.0.1",
+    "nprogress": "^0.2.0",
+    "pinia": "^2.2.2",
+    "vue": "^3.4.37",
+    "vue-router": "^4.4.4",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/crypto-js": "^4.2.2",
+    "@types/node": "^22.8.6",
+    "@vitejs/plugin-vue": "^5.1.2",
+    "eslint": "^9.11.1",
+    "eslint-plugin-vue": "^9.28.0",
+    "fast-glob": "^3.3.2",
+    "typescript": "^5.5.3",
+    "vite": "^5.4.1",
+    "vite-plugin-svg-icons": "^2.0.1",
+    "vue-tsc": "^2.0.29"
+  }
+}

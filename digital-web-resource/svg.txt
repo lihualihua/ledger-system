@@ -1,0 +1,91 @@
+#工作台
+配置
+workbench-shortcut-s.svg
+
+公共文档
+public-document.svg
+public-document-select.svg
+
+我的文档
+my-file.svg
+my-file-select.svg
+
+部门文件
+department-file.svg
+department-file-select.svg
+
+文档库 全部
+all-monochrome-select.svg
+
+文档库 图片
+img-monochrome-select.svg
+
+页眉箭头
+icon-arrow.svg
+
+上传
+upload-s.svg
+
+新增
+add-s.svg
+
+智能搜索 收起 / 展开
+packup-s.svg / unfold-s.svg
+
+个人标签
+icon-tag-gray-24.svg
+icon-tag-24.svg
+
+缩略图 / 列表
+icon-thumb.svg / icon-list.svg
+
+上传文件夹
+icon-file-s.svg
+
+系统logo
+icon-vite.svg
+
+智能搜索 批量下载
+icon-bulk-download.svg
+
+智能搜索 常用功能图标
+icon-view-24.svg 
+
+上传 -> 文件
+icon-doc-s.svg
+
+文件库 其他
+icon-other-file-select.svg
+
+文件库 doc
+icon-docx-select.svg
+
+文件库 xlsx
+icon-xlsx-select.svg
+
+文件库 ppt
+icon-ppt-select.svg
+
+文件库 pdf
+icon-pdf-select.svg
+
+#系统消息
+icon-system-message.svg
+icon-system-message-bright.svg 高亮
+icon-unread-message.svg 未读消息
+cion-read-message.svg 已读消息
+
+#通知
+icon-notification-24.svg
+icon-notification-bright.svg 高亮
+icon-notification.svg 未读消息
+
+#暂无消息
+icon-no-news.svg
+
+#用户头像
+icon-user-avatar.svg
+
+总共 48个svg图片
+
+

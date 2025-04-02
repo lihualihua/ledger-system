@@ -1,0 +1,152 @@
+*{
+  margin: 0;
+  padding: 0;
+  outline: none;
+  box-sizing: border-box;
+}
+
+ol,
+ul {
+  list-style: none;
+}
+
+h1 {
+  font-size: 2rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+}
+
+h3 {
+  font-size: 1.17rem;
+}
+
+h4 {
+  font-size: 1rem;
+}
+
+h5 {
+  font-size: 0.875rem;
+}
+
+/* 全局修改Element-Plus Dialog组件 标题字体 */
+.el-dialog__title{
+  font-size: 16px !important;
+}
+.el-dialog__header{
+  margin-bottom: 10px;
+}
+
+/* 全局修改Element-Plus MessageBox 消息弹框 组件 标题字体 */
+.el-message-box__title{
+  font-size: 16px !important;
+}
+.el-message-box__container{
+  margin: 10px 0!important;
+}
+
+/* 全局修改Element-Plus table 表头字体颜色加深 */
+.el-table th.el-table__cell {
+  color: #464646;
+}
+
+/* 自定义 公共全局样式 */
+.main-content {
+  min-height: calc(100vh - 100px);
+  border: 1px solid #e5e9f2;
+  background: #fff;
+  padding: 20px;
+}
+/* 自定义 公共全局样式内容缩进 */
+.main-container-mc {
+  padding: 0 10px;
+}
+
+/* 文件夹 */
+.icon-file-fill-24 {
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-image: url(../src/assets/icon-file-fill-24.svg);
+}
+
+/* 压缩包 zip、rar */
+.icon-zip-fill-24 {
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-image: url(../src/assets/icon-zip-fill-24.svg);
+}
+
+/* DOC */
+.icon-doc-fill-24 {
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-image: url(../src/assets/icon-doc-fill-24.svg);
+}
+
+/* XLS */
+.icon-excel-fill-24 {
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-image: url(../src/assets/icon-excel-fill-24.svg);
+}
+
+/* PPT */
+.icon-ppt-fill-24 {
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-image: url(../src/assets/icon-ppt-fill-24.svg);
+}
+
+/* PDF */
+.icon-pdf-fill-24 {
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-image: url(../src/assets/icon-pdf-fill-24.svg);
+}
+
+/* TXT */
+.icon-txt-fill-24 {
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-image: url(../src/assets/icon-txt-fill-24.svg);
+}
+
+/* SVG */
+.icon-ai-fill-24 {
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-image: url(../src/assets/icon-ai-fill-24.svg);
+}
+
+/* 其他文件如：drawio、vue、ts、json文件 */
+.icon-nor-m-24 {
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-image: url(../src/assets/icon-nor-m-24.svg);
+}
+
+/* JS、CSS、HTML、XML、JSP、PHP文件 */
+.icon-code-fill-24 {
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-image: url(../src/assets/icon-code-fill-24.svg);
+}
+
+/* 分享链接 */
+.shared-link-m {
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-image: url(../src/assets/shared-link-m.svg);
+}
